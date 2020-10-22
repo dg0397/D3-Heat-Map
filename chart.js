@@ -5,23 +5,24 @@ async function drawHeatMap(){
 
     const {monthlyVariance: dataset} = await d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json");
 
-    console.log(dataset[0])
+    console.log(dataset[2500])
 
     //Seeting accesors functions 
 
      
     const yAccessor = d => d.month
     const xAccessor = d => d.year
-    const colorMetricAccessor = d => d.variance
+    const colorMetricAccessor = d =>d.variance
 
-    console.log(xAccessor(dataset[0]))
-    console.log(yAccessor(dataset[0]))
-    console.log(colorMetricAccessor(dataset[0]))
+    console.log(xAccessor(dataset[2500]))
+    console.log(yAccessor(dataset[2500]))
+    console.log(colorMetricAccessor(dataset[2500]))
+    console.log(typeof dataset[2500].variance)
 
     //2) Create Chart Dimensions
 
     let dimensions = {
-        width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 800,
+        width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 1200,
         height: 400,
         margin: {
             top: 30,
@@ -59,17 +60,21 @@ async function drawHeatMap(){
     const yScale = d3.scaleTime()
                         .domain(d3.extent(dataset,yAccessor))
                         .range([dimensions.boundedHeight,0])
-                        .nice();
     
 
     const xScale = d3.scaleLinear()
                         .domain(d3.extent(dataset,xAccessor)) 
                         .range([0,dimensions.boundedWidth])
-                        .nice()
+
 
     const colorScale = d3.scaleLinear()
-                            .domain(d3.extent(dataset,colorMetricAccessor))
+                            .domain([Math.round((d3.min(dataset,colorMetricAccessor) + 8.66)*100)/100,Math.round((d3.max(dataset,colorMetricAccessor) + 8.66)*100)/100])
                             .range(["#E2F4FF","#BBE1FA","#3282B8","0F4C75","#641441","#942246","#D54153","#F45D51"])
+
+    
+
+    console.log(colorScale.domain())
+    console.log(colorScale(13))
 
      //5) Draw Data
 
@@ -83,6 +88,9 @@ async function drawHeatMap(){
 //
 //
     ////drawing circles 
+    const cellHeight = dimensions.boundedHeight/12
+    const cellWidth = dimensions.boundedWidth/(xScale.domain()[1] - xScale.domain()[0]) 
+
     const cells  =  bounds.selectAll('rect')
                             .data(dataset)
                             .enter()
@@ -91,7 +99,11 @@ async function drawHeatMap(){
                             .attr('data-month',d => yAccessor(d))
                             .attr('data-year',d => xAccessor(d))
                             .attr('data-temp',d=> Math.round((8.66 + d.variance)*100)/100)
-                            .attr("fill", d => colorScale(colorMetricAccessor(d)))
+                            .attr("fill", d => colorScale(colorMetricAccessor(d) + 8.66))
+                            .attr("height",cellHeight)
+                            .attr("width",cellWidth)
+                            .attr("x",d => xScale(xAccessor(d)))
+                            .attr("y",d => yScale(yAccessor(d)))
                             //.attr("data-xvalue",d => xAccessor(d) )
                             //.attr("data-yvalue",d => yAccessor(d) )
                             //.attr("fill", "#3c1d3a")
