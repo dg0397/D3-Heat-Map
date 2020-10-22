@@ -22,8 +22,8 @@ async function drawHeatMap(){
     //2) Create Chart Dimensions
 
     let dimensions = {
-        width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 1200,
-        height: 400,
+        width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 1300,
+        height: 500,
         margin: {
             top: 30,
             right: 30,
@@ -64,22 +64,30 @@ async function drawHeatMap(){
     
 
     const xScale = d3.scaleLinear()
-                        .domain(d3.extent(dataset,xAccessor)) 
+                        .domain([d3.min(dataset,xAccessor), d3.max(dataset,xAccessor) + 1]) 
                         .range([0,dimensions.boundedWidth])
 
 
     const colorScale = (d) => {
         const temperature = colorMetricAccessor(d);
         const domain = (d3.extent(dataset,colorMetricAccessor)[1]) - (d3.extent(dataset,colorMetricAccessor)[0]);
-        const q1 = domain*.25 + 1.68;
-        const q2 = domain*.50 + 1.68;
-        const q3 = domain*.75 + 1.68;
-        const q4 = domain*1 + 1.68;
-
-        if(temperature <= q1) return "SteelBlue"
-        if(temperature <= q2) return "LightSteelBlue"
-        if(temperature <= q3) return  "Orange"
-        if(temperature <= q4) return  'Crimson'
+        const q1 = domain*.125 + 1.68;
+        const q2 = domain*.25 + 1.68;
+        const q3 = domain*.375 + 1.68;
+        const q4 = domain*.5 + 1.68;
+        const q5 = domain*.625 + 1.68;
+        const q6 = domain*.75 + 1.68;
+        const q7 = domain*.875 + 1.68;
+        const q8 = domain*1 + 1.68;
+ 
+        if(temperature <= q1) return "#e2f4ff" 
+        if(temperature <= q2) return "#bbe1fa"
+        if(temperature <= q3) return "#3282b8" 
+        if(temperature <= q4) return "#0f4c75" 
+        if(temperature <= q5) return "#651441" 
+        if(temperature <= q6) return "#942246" 
+        if(temperature <= q7) return "#d54153" 
+        if(temperature <= q8) return "#f45d51" 
     }
                           
 
@@ -87,7 +95,7 @@ async function drawHeatMap(){
 
     console.log(colorScale(dataset[3000]))
     console.log(colorScale(0))
-    console.log((d3.extent(dataset,colorMetricAccessor)))
+    console.log(((d3.extent(dataset,colorMetricAccessor)[1]) - (d3.extent(dataset,colorMetricAccessor)[0])+1.68))
 
      //5) Draw Data
 
@@ -155,6 +163,9 @@ async function drawHeatMap(){
     const yAxis = bounds.append("g")
                         .attr("id","y-axis")
                         .call(yAxisGenerator)
+                        .selectAll('.tick')
+                        .style("transform", (d,i) => `translateY(${i * cellHeight + cellHeight/2}px)`);
+
 
     //const yAxisLabel = yAxis.append("text")
     //                        .attr("x", -dimensions.boundedHeight / 2)
