@@ -3,14 +3,14 @@ async function drawHeatMap(){
 
     //Fetching data
 
-    const {monthlyVariance: dataset} = await d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json");
+    const {monthlyVariance: dataset , baseTemperature} = await d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json");
 
     console.log(dataset[2500])
 
     //Seeting accesors functions 
 
      
-    const yAccessor = d => d.month
+    const yAccessor = d => d.month -1
     const xAccessor = d => d.year
     const colorMetricAccessor = d =>d.variance
 
@@ -59,7 +59,7 @@ async function drawHeatMap(){
 
     const yScale = d3.scaleTime()
                         .domain(d3.extent(dataset,yAccessor))
-                        .range([dimensions.boundedHeight,0])
+                        .range([0,dimensions.boundedHeight])
     
 
     const xScale = d3.scaleLinear()
@@ -68,13 +68,13 @@ async function drawHeatMap(){
 
 
     const colorScale = d3.scaleLinear()
-                            .domain([Math.round((d3.min(dataset,colorMetricAccessor) + 8.66)*100)/100,Math.round((d3.max(dataset,colorMetricAccessor) + 8.66)*100)/100])
-                            .range(["#E2F4FF","#BBE1FA","#3282B8","0F4C75","#641441","#942246","#D54153","#F45D51"])
+                            .domain(d3.extent(dataset,colorMetricAccessor))
+                            .range(["#e2f4ff","#f45d51"])
 
     
 
     console.log(colorScale.domain())
-    console.log(colorScale(13))
+    console.log(colorScale(0))
 
      //5) Draw Data
 
@@ -99,7 +99,7 @@ async function drawHeatMap(){
                             .attr('data-month',d => yAccessor(d))
                             .attr('data-year',d => xAccessor(d))
                             .attr('data-temp',d=> Math.round((8.66 + d.variance)*100)/100)
-                            .attr("fill", d => colorScale(colorMetricAccessor(d) + 8.66))
+                            .attr("fill", d => colorScale(colorMetricAccessor(d)))
                             .attr("height",cellHeight)
                             .attr("width",cellWidth)
                             .attr("x",d => xScale(xAccessor(d)))
@@ -119,11 +119,11 @@ async function drawHeatMap(){
     
     const xAxisGenerator = d3.axisBottom()
                                 .scale(xScale)
-                                //.tickFormat(d3.format("d"))
+                                .tickFormat(d3.format("d"))
 
     const yAxisGenerator = d3.axisLeft()
                                 .scale(yScale)
-                                //.tickFormat(d3.timeFormat("%M:%S"))
+                                .tickFormat(d3.timeFormat("%B"))
     //Adding X axis 
     const xAxis = bounds.append("g")
                         .attr("id","x-axis")
