@@ -10,9 +10,9 @@ async function drawHeatMap(){
     //Seeting accesors functions 
 
      
-    const yAccessor = d => d.month -1
+    const yAccessor = d => new Date(0,d.month -1,0)
     const xAccessor = d => d.year
-    const colorMetricAccessor = d =>d.variance
+    const colorMetricAccessor = d => Math.round( (baseTemperature + d.variance) * 100)/100
 
     console.log(xAccessor(dataset[2500]))
     console.log(yAccessor(dataset[2500]))
@@ -58,8 +58,9 @@ async function drawHeatMap(){
     //Setting scales
 
     const yScale = d3.scaleTime()
-                        .domain(d3.extent(dataset,yAccessor))
+                        .domain([new Date(0,0,0),new Date(0,12,0)])
                         .range([0,dimensions.boundedHeight])
+                        
     
 
     const xScale = d3.scaleLinear()
@@ -67,14 +68,26 @@ async function drawHeatMap(){
                         .range([0,dimensions.boundedWidth])
 
 
-    const colorScale = d3.scaleLinear()
-                            .domain(d3.extent(dataset,colorMetricAccessor))
-                            .range(["#e2f4ff","#f45d51"])
+    const colorScale = (d) => {
+        const temperature = colorMetricAccessor(d);
+        const domain = (d3.extent(dataset,colorMetricAccessor)[1]) - (d3.extent(dataset,colorMetricAccessor)[0]);
+        const q1 = domain*.25 + 1.68;
+        const q2 = domain*.50 + 1.68;
+        const q3 = domain*.75 + 1.68;
+        const q4 = domain*1 + 1.68;
+
+        if(temperature <= q1) return "SteelBlue"
+        if(temperature <= q2) return "LightSteelBlue"
+        if(temperature <= q3) return  "Orange"
+        if(temperature <= q4) return  'Crimson'
+    }
+                          
 
     
 
-    console.log(colorScale.domain())
+    console.log(colorScale(dataset[3000]))
     console.log(colorScale(0))
+    console.log((d3.extent(dataset,colorMetricAccessor)))
 
      //5) Draw Data
 
@@ -96,10 +109,10 @@ async function drawHeatMap(){
                             .enter()
                             .append("rect")
                             .attr('class','cell')
-                            .attr('data-month',d => yAccessor(d))
+                            .attr('data-month',d => d.month - 1)
                             .attr('data-year',d => xAccessor(d))
                             .attr('data-temp',d=> Math.round((8.66 + d.variance)*100)/100)
-                            .attr("fill", d => colorScale(colorMetricAccessor(d)))
+                            .attr('fill', d => colorScale(d))
                             .attr("height",cellHeight)
                             .attr("width",cellWidth)
                             .attr("x",d => xScale(xAccessor(d)))
