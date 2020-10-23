@@ -13,6 +13,7 @@ async function drawHeatMap(){
     const yAccessor = d => new Date(0,d.month -1,0)
     const xAccessor = d => d.year
     const colorMetricAccessor = d => Math.round( (baseTemperature + d.variance) * 100)/100
+    const monthFormat = d3.timeFormat("%B");
 
     console.log(xAccessor(dataset[2500]))
     console.log(yAccessor(dataset[2500]))
@@ -22,7 +23,7 @@ async function drawHeatMap(){
     //2) Create Chart Dimensions
 
     let dimensions = {
-        width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 1300,
+        width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 1100,
         height: 500,
         margin: {
             top: 30,
@@ -101,13 +102,13 @@ async function drawHeatMap(){
 
     //selecting tooltip 
 //
-    //const tooltip = d3.select('#tooltip');
+    const tooltip = d3.select('#tooltip');
 //
-    ////setting transition 
-//
-    //const updateTransition = d3.transition().duration(1000);
-//
-//
+    //setting transition 
+
+    const updateTransition = d3.transition().duration(2000);
+
+
     ////drawing circles 
     const cellHeight = dimensions.boundedHeight/12
     const cellWidth = dimensions.boundedWidth/(xScale.domain()[1] - xScale.domain()[0]) 
@@ -120,63 +121,83 @@ async function drawHeatMap(){
                             .attr('data-month',d => d.month - 1)
                             .attr('data-year',d => xAccessor(d))
                             .attr('data-temp',d=> Math.round((8.66 + d.variance)*100)/100)
-                            .attr('fill', d => colorScale(d))
+                            .attr('fill', "#fff")
                             .attr("height",cellHeight)
                             .attr("width",cellWidth)
-                            .attr("x",d => xScale(xAccessor(d)))
+                            .attr("x", 0)
                             .attr("y",d => yScale(yAccessor(d)))
                             //.attr("data-xvalue",d => xAccessor(d) )
                             //.attr("data-yvalue",d => yAccessor(d) )
                             //.attr("fill", "#3c1d3a")
-    ////adding transition to dots
-//
-    //dots.transition(updateTransition)
-    //    .attr('cy',(d)=>yScale(yAccessor(d)))
-    //    .attr('r',5)
-    //    .attr("fill", d => colorScale(colorAccessor(d)))
-//
-    // //6)Draw Peripherals
-    ////Setting axis 
-    
+    //adding transition to cells
+
+    cells.transition(updateTransition)
+        .attr('x',d => xScale(xAccessor(d)))
+        .attr("fill",d => colorScale(d))
+
+    //6)Draw Peripherals
+    //Setting axis 
     const xAxisGenerator = d3.axisBottom()
                                 .scale(xScale)
                                 .tickFormat(d3.format("d"))
 
     const yAxisGenerator = d3.axisLeft()
                                 .scale(yScale)
-                                .tickFormat(d3.timeFormat("%B"))
+                                .tickFormat(monthFormat)
     //Adding X axis 
     const xAxis = bounds.append("g")
                         .attr("id","x-axis")
                         .style("transform", `translateY(${dimensions.boundedHeight}px)`)
                         .call(xAxisGenerator)
 
-    //const xAxisLabel = xAxis.append("text")
-    //                        .attr("x", dimensions.boundedWidth)
-    //                        .attr("y", dimensions.margin.bottom - 10)
-    //                        .attr("fill", "black")
-    //                        .style("font-size", "1.4em")
-    //                        .style("font-style", "italic")
-    //                        .html("Year");
+    const xAxisLabel = xAxis.append("text")
+                            .attr("x", dimensions.boundedWidth/2)
+                            .attr("y", dimensions.margin.bottom - 20)
+                            .attr("fill", "black")
+                            .style("font-size", "1.4em")
+                            .style("font-style", "italic")
+                            .html("Year");
 
     //Adding Y axis 
     const yAxis = bounds.append("g")
                         .attr("id","y-axis")
                         .call(yAxisGenerator)
-                        .selectAll('.tick')
-                        .style("transform", (d,i) => `translateY(${i * cellHeight + cellHeight/2}px)`);
 
 
-    //const yAxisLabel = yAxis.append("text")
-    //                        .attr("x", -dimensions.boundedHeight / 2)
-    //                        .attr("y", -dimensions.margin.left + 20)
-    //                        .attr("fill", "black")
-    //                        .style("font-size", "1.4em")
-    //                        .text("Time in minutes")
-    //                        .style("font-style", "italic")
-    //                        .style("transform", "rotate(-90deg)")
-    //                        .style("text-anchor", "middle");
+    const yAxisLabel = yAxis.append("text")
+                            .attr("x", -dimensions.boundedHeight / 2)
+                            .attr("y", -dimensions.margin.left + 20)
+                            .attr("fill", "black")
+                            .style("font-size", "1.4em")
+                            .text("Months")
+                            .style("font-style", "italic")
+                            .style("transform", "rotate(-90deg)")
+                            .style("text-anchor", "middle");
 
+    yAxis.selectAll('.tick')
+    .style("transform", (d,i) => `translateY(${i * cellHeight + cellHeight/2}px)`);
 
+    //7) Set up Interactions
+
+    cells.on("mouseenter", onMouseEnter)
+        .on("mouseleave", onMouseLeave)
+
+    function onMouseEnter(datum,index){
+        const x = xScale(xAccessor(index)) + dimensions.margin.left;
+        const y = yScale(yAccessor(index)) + dimensions.margin.top;
+        
+        //Updating tooltip styles
+        tooltip.attr("data-year",index.year)
+                .style('opacity',1)
+                .style("transform",`translate(calc(-50% + ${x}px) , calc(-118% + ${y}px) )`)
+
+        //Updating tooltip information
+        tooltip.select("#data").text(`Year: ${index.year} - Month : ${monthFormat(index.month)}`);
+        tooltip.select("#temperature").text(`Temperature: ${colorMetricAccessor(index)}`);
+    }
+
+    function onMouseLeave(datum,index){
+        tooltip.style('opacity',0)
+    }
 }
 drawHeatMap()

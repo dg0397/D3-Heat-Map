@@ -1,0 +1,107 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+body{
+    background-image: linear-gradient(260deg, #3c1d3a 0%, #1b262c 100%);
+    padding: 1rem;
+    width: 100vw;
+    height: 100vh;
+}
+/*Main container*/
+.main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+/*Header*/
+header{
+    font-style: italic;
+    font-weight: 300;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+}
+/*Wrapper SVG*/
+#wrapper{
+    margin: 3rem auto;
+    border-radius: 50px ;
+    position: relative;
+}
+svg{
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 5px 10px 10px #1c1c1c;
+    color: #1c1c1c;
+}
+svg .cell{
+    border: 1px solid transparent;
+}
+svg rect.cell:hover{
+    stroke: white ;
+    stroke-width: 1px;
+    opacity: .9;
+}
+#tooltip{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    background-color:rgba(28, 28, 28,.8);
+    color: white;
+    text-align: center;
+    font-size: .9rem;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #1c1c1c;
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    transition: opacity .2s ease ;
+}
+#tooltip::before{
+    content: "▼";
+    position: absolute;
+    bottom: -15px;
+    color:rgba(28, 28, 28,.7);
+}
+#tooltip span{
+    font-style: italic;
+}
+#legend{
+    font-size: .8rem;
+    font-style: italic;
+    width: 20%;
+    position: absolute;
+    opacity: 0;
+    transition: opacity 1s ease ;
+}
+#legend span{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+#legend #positive span{
+    background-color: #942246;
+}
+#legend #negative span{
+    background-color: #f45d51;
+}
+/*Footer*/
+footer{
+    margin: .5rem auto;
+}
+footer p{
+    text-align: center;
+    color: aliceblue;
+}
+footer p a{
+    color: aliceblue;
+    letter-spacing: .1rem;
+}
