@@ -5,7 +5,7 @@ async function drawHeatMap(){
 
     const {monthlyVariance: dataset , baseTemperature} = await d3.json("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json");
 
-    console.log(dataset[2500])
+    const colorData = ["#e2f4ff","#bbe1fa","#3282b8","#0f4c75","#651441","#942246","#d54153","#f45d51"]
 
     //Seeting accesors functions 
 
@@ -176,6 +176,27 @@ async function drawHeatMap(){
 
     yAxis.selectAll('.tick')
     .style("transform", (d,i) => `translateY(${i * cellHeight + cellHeight/2}px)`);
+
+    //settup legend
+
+    const legend = d3.select("#legend")
+                            .append("svg")
+                            .attr('width',dimensions.width *.5 )
+                            .attr('height',dimensions.height *.1)
+                            .style('display','block')
+
+
+
+    const legendCells = legend.selectAll('rect')
+                                .data(colorData)
+                                .enter()
+                                .append("rect")
+                                .attr('fill' ,d => d)
+                                .attr('width', 20)
+                                .attr('height', 20)
+                                .attr('x', (d,i) => i*20)
+                                .attr('y', 0)
+                                
 
     //7) Set up Interactions
 

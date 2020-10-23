@@ -73,7 +73,7 @@ svg rect.cell:hover{
 #tooltip span{
     font-style: italic;
 }
-#legend{
+/*#legend{
     font-size: .8rem;
     font-style: italic;
     width: 20%;
@@ -92,7 +92,7 @@ svg rect.cell:hover{
 }
 #legend #negative span{
     background-color: #f45d51;
-}
+}*/
 /*Footer*/
 footer{
     margin: .5rem auto;
