@@ -24,7 +24,7 @@ async function drawHeatMap(){
 
     let dimensions = {
         width: window.innerWidth * 0.9 <= 600 ? window.innerWidth * 0.9 : 1100,
-        height: 500,
+        height: 400,
         margin: {
             top: 30,
             right: 30,
@@ -181,21 +181,40 @@ async function drawHeatMap(){
 
     const legend = d3.select("#legend")
                             .append("svg")
-                            .attr('width',dimensions.width *.5 )
-                            .attr('height',dimensions.height *.1)
+                            .attr('width',dimensions.width *.3 )
+                            .attr('height',dimensions.height *.15)
                             .style('display','block')
 
 
+    const legendsBounds = legend.append('g')
+                                    .style('transform', `translate(10px ,0)`);
+    
+    const colorScaleAxis = d3.scaleLinear()
+                                .domain(d3.extent(dataset,colorMetricAccessor))
+                                .range([0,(dimensions.width *.3) -20])   
+                                .nice()   
 
-    const legendCells = legend.selectAll('rect')
+    const legendCells = legendsBounds.selectAll('rect')
                                 .data(colorData)
                                 .enter()
                                 .append("rect")
                                 .attr('fill' ,d => d)
-                                .attr('width', 20)
-                                .attr('height', 20)
-                                .attr('x', (d,i) => i*20)
-                                .attr('y', 0)
+                                .attr('width', (dimensions.width *.3 - 20)/colorData.length)
+                                .attr('height', dimensions.height *.1 - 20)
+                                .attr('x', (d,i) => i*(dimensions.width *.3 - 20)/colorData.length)
+                                .attr('y', 10)
+
+    
+
+    console.log(colorScaleAxis.range())
+
+    const axisLegendGenerator = d3.axisBottom()
+                                    .scale(colorScaleAxis)
+
+    const xAxisLegend = legendsBounds.append("g")
+                                    .style("transform", `translateY(${dimensions.height*.1 -10}px)`)
+                                    .call(axisLegendGenerator)
+
                                 
 
     //7) Set up Interactions
