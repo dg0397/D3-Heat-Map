@@ -16,6 +16,7 @@ body{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
 }
 /*Header*/
 header{
@@ -73,26 +74,13 @@ svg rect.cell:hover{
 #tooltip span{
     font-style: italic;
 }
-/*#legend{
+#legend{
     font-size: .8rem;
     font-style: italic;
-    width: 20%;
-    position: absolute;
-    opacity: 0;
-    transition: opacity 1s ease ;
 }
-#legend span{
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+#legend .rect{
+    stroke: #1b262c;
 }
-#legend #positive span{
-    background-color: #942246;
-}
-#legend #negative span{
-    background-color: #f45d51;
-}*/
 /*Footer*/
 footer{
     margin: .5rem auto;

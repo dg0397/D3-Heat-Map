@@ -12,13 +12,8 @@ async function drawHeatMap(){
      
     const yAccessor = d => new Date(0,d.month -1,0)
     const xAccessor = d => d.year
-    const colorMetricAccessor = d => Math.round( (baseTemperature + d.variance) * 100)/100
+    const colorMetricAccessor = d => Math.round( (baseTemperature + d.variance) * 100)/100 // this function give me the temp of a month
     const monthFormat = d3.timeFormat("%B");
-
-    console.log(xAccessor(dataset[2500]))
-    console.log(yAccessor(dataset[2500]))
-    console.log(colorMetricAccessor(dataset[2500]))
-    console.log(typeof dataset[2500].variance)
 
     //2) Create Chart Dimensions
 
@@ -68,10 +63,12 @@ async function drawHeatMap(){
                         .domain([d3.min(dataset,xAccessor), d3.max(dataset,xAccessor) + 1]) 
                         .range([0,dimensions.boundedWidth])
 
-
+    
+    // colorScale return a color basing in the temp 
     const colorScale = (d) => {
         const temperature = colorMetricAccessor(d);
-        const domain = (d3.extent(dataset,colorMetricAccessor)[1]) - (d3.extent(dataset,colorMetricAccessor)[0]);
+        const [tmin,tmax] = d3.extent(dataset,colorMetricAccessor)
+        const domain = tmax - tmin;
         const q1 = domain*.125 + 1.68;
         const q2 = domain*.25 + 1.68;
         const q3 = domain*.375 + 1.68;
@@ -90,29 +87,25 @@ async function drawHeatMap(){
         if(temperature <= q7) return "#d54153" 
         if(temperature <= q8) return "#f45d51" 
     }
-                          
-
-    
-
-    console.log(colorScale(dataset[3000]))
-    console.log(colorScale(0))
-    console.log(((d3.extent(dataset,colorMetricAccessor)[1]) - (d3.extent(dataset,colorMetricAccessor)[0])+1.68))
 
      //5) Draw Data
 
     //selecting tooltip 
-//
+
     const tooltip = d3.select('#tooltip');
-//
+
     //setting transition 
 
     const updateTransition = d3.transition().duration(2000);
 
 
-    ////drawing circles 
+    ////drawing cells
+
+    //setting cell dimensions  
     const cellHeight = dimensions.boundedHeight/12
     const cellWidth = dimensions.boundedWidth/(xScale.domain()[1] - xScale.domain()[0]) 
 
+    //addding cells
     const cells  =  bounds.selectAll('rect')
                             .data(dataset)
                             .enter()
@@ -126,9 +119,7 @@ async function drawHeatMap(){
                             .attr("width",cellWidth)
                             .attr("x", 0)
                             .attr("y",d => yScale(yAccessor(d)))
-                            //.attr("data-xvalue",d => xAccessor(d) )
-                            //.attr("data-yvalue",d => yAccessor(d) )
-                            //.attr("fill", "#3c1d3a")
+                            
     //adding transition to cells
 
     cells.transition(updateTransition)
@@ -136,6 +127,7 @@ async function drawHeatMap(){
         .attr("fill",d => colorScale(d))
 
     //6)Draw Peripherals
+
     //Setting axis 
     const xAxisGenerator = d3.axisBottom()
                                 .scale(xScale)
@@ -203,11 +195,9 @@ async function drawHeatMap(){
                                 .attr('height', dimensions.height *.1 - 20)
                                 .attr('x', (d,i) => i*(dimensions.width *.3 - 20)/colorData.length)
                                 .attr('y', 10)
+                                .attr("class",'rect')
 
     
-
-    console.log(colorScaleAxis.range())
-
     const axisLegendGenerator = d3.axisBottom()
                                     .scale(colorScaleAxis)
 
@@ -215,13 +205,13 @@ async function drawHeatMap(){
                                     .style("transform", `translateY(${dimensions.height*.1 -10}px)`)
                                     .call(axisLegendGenerator)
     
-                                    const xAxisLegendLabel = xAxisLegend.append("text")
-                            .attr("x", (dimensions.width *.3 - 20)/2)
-                            .attr("y", 30)
-                            .attr("fill", "black")
-                            .style("font-size", "1.4em")
-                            .style("font-style", "italic")
-                            .html("Temperature Values");
+    const xAxisLegendLabel = xAxisLegend.append("text")
+                                        .attr("x", (dimensions.width *.3 - 20)/2)
+                                        .attr("y", 30)
+                                        .attr("fill", "black")
+                                        .style("font-size", "1.4em")
+                                        .style("font-style", "italic")
+                                        .html("Temperature Values ℃");
 
                                 
 
@@ -240,7 +230,7 @@ async function drawHeatMap(){
                 .style("transform",`translate(calc(-50% + ${x}px) , calc(-118% + ${y}px) )`)
 
         //Updating tooltip information
-        tooltip.select("#data").text(`Year: ${index.year} - Month : ${monthFormat(index.month)}`);
+        tooltip.select("#data").text(`Year: ${index.year} - Month : ${monthFormat(new Date(0,index.month, 0))}`);
         tooltip.select("#temperature").text(`Temperature: ${colorMetricAccessor(index)}`);
     }
 
