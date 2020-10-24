@@ -182,7 +182,7 @@ async function drawHeatMap(){
     const legend = d3.select("#legend")
                             .append("svg")
                             .attr('width',dimensions.width *.3 )
-                            .attr('height',dimensions.height *.15)
+                            .attr('height',dimensions.height *.18)
                             .style('display','block')
 
 
@@ -214,6 +214,14 @@ async function drawHeatMap(){
     const xAxisLegend = legendsBounds.append("g")
                                     .style("transform", `translateY(${dimensions.height*.1 -10}px)`)
                                     .call(axisLegendGenerator)
+    
+                                    const xAxisLegendLabel = xAxisLegend.append("text")
+                            .attr("x", (dimensions.width *.3 - 20)/2)
+                            .attr("y", 30)
+                            .attr("fill", "black")
+                            .style("font-size", "1.4em")
+                            .style("font-style", "italic")
+                            .html("Temperature Values");
 
                                 
 
