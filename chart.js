@@ -231,7 +231,7 @@ async function drawHeatMap(){
 
         //Updating tooltip information
         tooltip.select("#data").text(`Year: ${index.year} - Month : ${monthFormat(new Date(0,index.month, 0))}`);
-        tooltip.select("#temperature").text(`Temperature: ${colorMetricAccessor(index)}`);
+        tooltip.select("#temperature").text(`Temperature: ${colorMetricAccessor(index)}℃`);
     }
 
     function onMouseLeave(datum,index){
