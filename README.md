@@ -1,5 +1,5 @@
 # D3-Heat-Map
-Data Visualization Projects - Visualize Data with a Heat Map
+Data Visualization Projects - Visualize Data with a Heat Map (FreeCodeCamp's Project)
 
 <img width="250px" src = "https://github.com/dg0397/D3-Heat-Map/blob/master/HeatMap.png" />
 
